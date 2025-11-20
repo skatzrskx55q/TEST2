@@ -7,7 +7,119 @@ import csv
 import torch  # <-- используется для нарезки тензора эмбеддингов
 
 st.set_page_config(page_title="Проверка фраз ЮЛ", layout="centered")
-st.title("🤖 Проверка фраз")
+
+# Новогодние стили
+st.markdown("""
+<style>
+    .main-header {
+        font-size: 2.5rem;
+        color: #1a6e1a;
+        text-align: center;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    .snowflake {
+        color: #87CEEB;
+        font-size: 1.5rem;
+        margin: 0 5px;
+        animation: gentleFloat 3s ease-in-out infinite;
+        display: inline-block;
+    }
+    
+    @keyframes gentleFloat {
+        0%, 100% { 
+            transform: translateY(0px) rotate(0deg); 
+        }
+        50% { 
+            transform: translateY(-8px) rotate(180deg); 
+        }
+    }
+    
+    .snowflake:nth-child(2n) {
+        animation-delay: 0.5s;
+    }
+    .snowflake:nth-child(3n) {
+        animation-delay: 1s;
+    }
+    .snowflake:nth-child(4n) {
+        animation-delay: 1.5s;
+    }
+    
+    .christmas-banner {
+        background: linear-gradient(90deg, #1a6e1a, #4caf50, #1a6e1a);
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 8px rgba(26, 110, 26, 0.3);
+    }
+    
+    .snow-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin: 10px 0;
+    }
+    
+    .christmas-card {
+        background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+        padding: 16px;
+        border-radius: 12px;
+        border: 2px solid #1a6e1a;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 6px rgba(26,110,26,0.1);
+    }
+    
+    .christmas-card-highlight {
+        background: linear-gradient(135deg, #fff9e6 0%, #ffefbf 100%);
+        border: 2px solid #ffd700;
+        box-shadow: 0 4px 8px rgba(255,215,0,0.3);
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Новогодний баннер
+st.markdown("""
+<div class="christmas-banner">
+    🎄 С Наступающим Новым Годом! 🎄
+</div>
+""", unsafe_allow_html=True)
+
+# Заголовок с новогодними украшениями
+col1, col2, col3 = st.columns([1, 2, 1])
+
+with col2:
+    # Верхний ряд снежинок
+    st.markdown("""
+    <div class="snow-row">
+        <span class="snowflake">❄</span>
+        <span class="snowflake">❅</span>
+        <span class="snowflake">❆</span>
+        <span class="snowflake">•</span>
+        <span class="snowflake">❄</span>
+        <span class="snowflake">❅</span>
+    </div>
+    """, unsafe_allow_html=True)
+     
+    # Нижний ряд иконок
+    st.markdown("""
+    <div class="snow-row">
+        <span class="snowflake">⭐</span>
+        <span class="snowflake">🎄</span>
+        <span class="snowflake">🎁</span>
+        <span class="snowflake">🕯️</span>
+        <span class="snowflake">⭐</span>
+        <span class="snowflake">🎄</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 LOG_FILE = "query_log.csv"
 
@@ -48,9 +160,9 @@ if selected_topics:
     for row in filtered_df.itertuples():
         with st.container():
             st.markdown(
-                f"""<div style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 12px; background-color: #f9f9f9; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                    <div style="font-size: 18px; font-weight: 600; color: #333;">📝 {row.phrase_full}</div>
-                    <div style="margin-top: 4px; font-size: 14px; color: #666;">🔖 Тематики: <strong>{', '.join(row.topics)}</strong></div>
+                f"""<div class="christmas-card">
+                    <div style="font-size: 18px; font-weight: 600; color: #1a472a;">🎁 {row.phrase_full}</div>
+                    <div style="margin-top: 4px; font-size: 14px; color: #2e7d32;">🔖 Тематики: <strong>{', '.join(row.topics)}</strong></div>
                 </div>""",
                 unsafe_allow_html=True
             )
@@ -97,7 +209,7 @@ if query:
 
         # Проверка на пустой результат
         if search_df.empty:
-            st.warning("Нет данных для поиска по выбранным тематикам.")
+            st.warning("❄️ Нет данных для поиска по выбранным тематикам.")
         else:
             results = semantic_search(query, search_df)
             exact_results = keyword_search(query, search_df)
@@ -111,14 +223,17 @@ if query:
             )
 
             if results:
-                st.markdown("### 🔍 Результаты умного поиска:")
+                st.markdown("### 🎯 Результаты умного поиска:")
                 for score, phrase_full, topics, comment in results:
                     with st.container():
+                        card_class = "christmas-card-highlight" if score > 0.8 else "christmas-card"
+                        icon = "⭐" if score > 0.8 else "🎁"
+                        
                         st.markdown(
-                            f"""<div style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 12px; background-color: #f9f9f9; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                                <div style="font-size: 18px; font-weight: 600; color: #333;">🧠 {phrase_full}</div>
-                                <div style="margin-top: 4px; font-size: 14px; color: #666;">🔖 Тематики: <strong>{', '.join(topics)}</strong></div>
-                                <div style="margin-top: 2px; font-size: 13px; color: #999;">🎯 Релевантность: {score:.2f}</div>
+                            f"""<div class="{card_class}">
+                                <div style="font-size: 18px; font-weight: 600; color: #1a472a;">{icon} {phrase_full}</div>
+                                <div style="margin-top: 4px; font-size: 14px; color: #2e7d32;">🔖 Тематики: <strong>{', '.join(topics)}</strong></div>
+                                <div style="margin-top: 2px; font-size: 13px; color: #388e3c;">🎯 Релевантность: {score:.2f}</div>
                             </div>""",
                             unsafe_allow_html=True
                         )
@@ -126,16 +241,16 @@ if query:
                             with st.expander("💬 Комментарий", expanded=False):
                                 st.markdown(comment)
             else:
-                st.warning("Совпадений не найдено в умном поиске.")
+                st.warning("🎄 Совпадений не найдено в умном поиске.")
 
             if exact_results:
                 st.markdown("### 🧷 Точный поиск:")
                 for phrase, topics, comment in exact_results:
                     with st.container():
                         st.markdown(
-                            f"""<div style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 12px; background-color: #f9f9f9; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                                <div style="font-size: 18px; font-weight: 600; color: #333;">📌 {phrase}</div>
-                                <div style="margin-top: 4px; font-size: 14px; color: #666;">🔖 Тематики: <strong>{', '.join(topics)}</strong></div>
+                            f"""<div class="christmas-card">
+                                <div style="font-size: 18px; font-weight: 600; color: #1b5e20;">🎯 {phrase}</div>
+                                <div style="margin-top: 4px; font-size: 14px; color: #2e7d32;">🔖 Тематики: <strong>{', '.join(topics)}</strong></div>
                             </div>""",
                             unsafe_allow_html=True
                         )
@@ -143,10 +258,10 @@ if query:
                             with st.expander("💬 Комментарий", expanded=False):
                                 st.markdown(comment)
             else:
-                st.info("Ничего не найдено в точном поиске.")
+                st.info("❄️ Ничего не найдено в точном поиске.")
 
     except Exception as e:
-        st.error(f"Ошибка при обработке запроса: {e}")
+        st.error(f"🎄 Ошибка при обработке запроса: {e}")
 
 # Блок логов
 with st.expander("⚙️ Логи (для админов)", expanded=False):
@@ -161,3 +276,16 @@ with st.expander("⚙️ Логи (для админов)", expanded=False):
         if os.path.exists(LOG_FILE):
             open(LOG_FILE, "w").close()
         st.success("Логи очищены!")
+
+# Новогодний футер
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align: center; color: #1a6e1a; margin-top: 30px;">
+        <p>🎄 <strong>С Наступающим Новым Годом, Коллеги❤️</strong> 🎄</p>
+        <div style="font-size: 0.9rem; color: #666;">
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
