@@ -106,9 +106,6 @@ with col2:
     </div>
     """, unsafe_allow_html=True)
     
-    # Главный заголовок
-    st.markdown('<h1 class="main-header">🤖 Проверка фраз</h1>', unsafe_allow_html=True)
-    
     # Нижний ряд иконок
     st.markdown("""
     <div class="snow-row">
